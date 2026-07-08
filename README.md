@@ -1,4 +1,5 @@
-# The Alternation
+# The Alternation<img width="1024" height="1024" alt="icon" src="https://github.com/user-attachments/assets/444ce404-4bf8-4631-96cc-57c5af460b4a" />
+
 
 自作の iOS アプリから、Mac 上で動く **Claude Code CLI** を遠隔操作するためのシステムです。
 スマートフォンから大まかな指示を送ると、Mac 側の Claude Code が実行し、結果・差分・使用量をアプリへ返します。外出先からでも（Tailscale 経由で）自宅 Mac の Claude Code を動かせます。
