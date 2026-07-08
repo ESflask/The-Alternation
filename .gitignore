@@ -1,0 +1,34 @@
+# ===== The Alternation — root .gitignore =====
+
+# --- 秘匿情報（最重要）: Claude Code アカウント/認証を絶対に公開しない ---
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.mobileprovision
+*.keychain
+# Claude Code の認証・ローカルデータ（本来リポ外だが保険で除外）
+.claude/
+**/.claude/
+claude-credentials*
+credentials.json
+secrets*.json
+
+# --- Node (vibe-connect-server) ---
+node_modules/
+dist/
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# --- Xcode / iOS ---
+build/
+DerivedData/
+# *.xcodeproj は xcodegen が project.yml から再生成するため追跡しない
+*.xcodeproj/
+xcuserdata/
+*.xcuserstate
+
+# --- macOS ---
+.DS_Store
