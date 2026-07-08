@@ -49,7 +49,8 @@ struct ConsoleChatView: View {
                     store: sessionStore,
                     onClose: closeDrawer,
                     onSelect: { id in sessionStore.select(id); closeDrawer() },
-                    onSettings: { closeDrawer(); showSettings = true }
+                    onSettings: { closeDrawer(); showSettings = true },
+                    onSelectClaude: { dto in Task { await importAndOpen(dto) } }
                 )
                 .frame(width: drawerWidth)
                 .offset(x: -drawerWidth * (1 - progress))
@@ -73,7 +74,10 @@ struct ConsoleChatView: View {
             .simultaneousGesture(drawerDrag(drawerWidth: drawerWidth))
         }
         .tint(Theme.accent)
-        .task { await viewModel.checkConnection() }
+        .task {
+            await viewModel.checkConnection()
+            await loadClaudeHistory()   // 起動時に Claude Code 履歴を Recents 下へ読み込む
+        }
         .onChange(of: viewModel.messages) { _, newMessages in
             sessionStore.updateActiveMessages(newMessages)
         }
@@ -291,6 +295,34 @@ struct ConsoleChatView: View {
         case "usage": showUsage = true
         default: break
         }
+    }
+
+    /// 起動時に Claude Code の既存履歴（sandbox）を取得し、ドロワーの Recents 下に表示する。
+    private func loadClaudeHistory() async {
+        guard let client = APIClient(host: viewModel.serverHost) else { return }
+        if let list = try? await client.fetchHistorySessions(scope: "sandbox") {
+            sessionStore.setClaudeHistory(list)
+        }
+    }
+
+    /// 履歴行をタップ → 本文を取得してアプリのチャットに取り込み、開く。
+    private func importAndOpen(_ dto: HistorySessionDTO) async {
+        closeDrawer()
+        guard let client = APIClient(host: viewModel.serverHost) else { return }
+        guard let dtos = try? await client.fetchHistoryMessages(id: dto.id, scope: "sandbox") else { return }
+        let msgs = dtos.map {
+            ChatMessage(role: $0.role == "user" ? .user : .assistant,
+                        text: $0.text,
+                        timestamp: parseISO($0.timestamp))
+        }
+        sessionStore.addImported(title: dto.title, messages: msgs)
+    }
+
+    private func parseISO(_ iso: String?) -> Date {
+        guard let iso else { return Date() }
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f.date(from: iso) ?? ISO8601DateFormatter().date(from: iso) ?? Date()
     }
 
     /// 最初のやり取り完了時、タイトル未設定なら Claude(haiku) に短い題名を付けさせる。

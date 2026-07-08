@@ -11,6 +11,9 @@ final class SessionStore: ObservableObject {
     @Published var sessions: [ChatSession] = []
     @Published var activeID: UUID?
 
+    /// 起動時に読み込む Claude Code の既存履歴（サンドボックス分・メタのみ）。ドロワーの Recents 下に表示する。
+    @Published var claudeHistory: [HistorySessionDTO] = []
+
     init(restore: Bool = true) {
         if restore { restoreSessions() }
         if sessions.isEmpty {
@@ -45,6 +48,21 @@ final class SessionStore: ObservableObject {
 
     func select(_ id: UUID) {
         activeID = id
+    }
+
+    /// 起動時に取得した Claude Code 履歴一覧をセットする。
+    func setClaudeHistory(_ list: [HistorySessionDTO]) {
+        claudeHistory = list
+    }
+
+    /// Claude Code の既存履歴から作った会話を取り込み、アクティブにする。
+    @discardableResult
+    func addImported(title: String, messages: [ChatMessage]) -> ChatSession {
+        let s = ChatSession(title: title, messages: messages)
+        sessions.insert(s, at: 0)
+        activeID = s.id
+        saveSessions()
+        return s
     }
 
     func rename(_ id: UUID, title: String) {

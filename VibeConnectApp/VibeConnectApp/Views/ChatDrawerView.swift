@@ -9,14 +9,23 @@ struct ChatDrawerView: View {
     var onClose: () -> Void
     var onSelect: (UUID) -> Void
     var onSettings: () -> Void
+    var onSelectClaude: (HistorySessionDTO) -> Void
 
     @State private var searchText = ""
 
+    private var query: String {
+        searchText.trimmingCharacters(in: .whitespaces).lowercased()
+    }
+
     private var filtered: [ChatSession] {
-        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         let base = store.sessions.sorted { $0.createdAt > $1.createdAt }
-        guard !q.isEmpty else { return base }
-        return base.filter { $0.displayTitle.lowercased().contains(q) }
+        guard !query.isEmpty else { return base }
+        return base.filter { $0.displayTitle.lowercased().contains(query) }
+    }
+
+    private var filteredClaude: [HistorySessionDTO] {
+        guard !query.isEmpty else { return store.claudeHistory }
+        return store.claudeHistory.filter { $0.title.lowercased().contains(query) }
     }
 
     var body: some View {
@@ -88,8 +97,50 @@ struct ChatDrawerView: View {
                 ForEach(filtered) { session in
                     drawerRow(session)
                 }
+
+                // Recents の下に Claude Code の既存履歴を表示（起動時に読込）
+                if !filteredClaude.isEmpty {
+                    Text("Claude Code の履歴")
+                        .font(.caption)
+                        .foregroundStyle(Theme.secondaryText)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        .padding(.bottom, 4)
+
+                    ForEach(filteredClaude) { s in
+                        claudeRow(s)
+                    }
+                }
             }
             .padding(.bottom, 12)
+        }
+    }
+
+    private func claudeRow(_ s: HistorySessionDTO) -> some View {
+        Button {
+            onSelectClaude(s)
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Theme.secondaryText)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(s.title)
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.primaryText)
+                        .lineLimit(1)
+                    Text("\(s.messageCount) メッセージ")
+                        .font(.caption2)
+                        .foregroundStyle(Theme.tertiaryText)
+                }
+                Spacer()
+                Image(systemName: "square.and.arrow.down")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.tertiaryText)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 9)
+            .contentShape(Rectangle())
         }
     }
 
@@ -152,5 +203,5 @@ struct ChatDrawerView: View {
 }
 
 #Preview {
-    ChatDrawerView(store: .preview, onClose: {}, onSelect: { _ in }, onSettings: {})
+    ChatDrawerView(store: .preview, onClose: {}, onSelect: { _ in }, onSettings: {}, onSelectClaude: { _ in })
 }

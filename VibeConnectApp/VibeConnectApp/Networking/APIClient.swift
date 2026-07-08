@@ -147,12 +147,21 @@ struct APIClient {
 
     /// GET /api/usage?scope=all|sandbox
     func fetchUsage(scope: String) async throws -> UsageResponse {
-        guard var comps = URLComponents(url: url("api", "usage"), resolvingAgainstBaseURL: false) else {
-            throw APIError.invalidHost
-        }
-        comps.queryItems = [URLQueryItem(name: "scope", value: scope)]
-        guard let u = comps.url else { throw APIError.invalidHost }
-        return try await get(u, timeout: requestTimeout)
+        try await get(query(url("api", "usage"), "scope", scope), timeout: requestTimeout)
+    }
+
+    /// GET /api/history/sessions?scope=sandbox|all
+    func fetchHistorySessions(scope: String) async throws -> [HistorySessionDTO] {
+        let r: HistorySessionsResponse = try await get(
+            query(url("api", "history", "sessions"), "scope", scope), timeout: requestTimeout)
+        return r.sessions
+    }
+
+    /// GET /api/history/:id?scope=sandbox|all
+    func fetchHistoryMessages(id: String, scope: String) async throws -> [HistoryMessageDTO] {
+        let r: HistoryMessagesResponse = try await get(
+            query(url("api", "history", id), "scope", scope), timeout: requestTimeout)
+        return r.messages
     }
 
     /// POST /api/git/commit
@@ -178,6 +187,13 @@ struct APIClient {
     /// baseURL に path コンポーネントを連結する。
     private func url(_ components: String...) -> URL {
         components.reduce(baseURL) { $0.appendingPathComponent($1) }
+    }
+
+    /// URL にクエリ 1 個を付与する。
+    private func query(_ base: URL, _ name: String, _ value: String) -> URL {
+        guard var comps = URLComponents(url: base, resolvingAgainstBaseURL: false) else { return base }
+        comps.queryItems = [URLQueryItem(name: name, value: value)]
+        return comps.url ?? base
     }
 
     private func get<T: Decodable>(_ url: URL, timeout: TimeInterval) async throws -> T {

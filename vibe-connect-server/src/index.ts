@@ -11,6 +11,7 @@ import gitRouter from './routes/git';
 import filesRouter from './routes/files';
 import titleRouter from './routes/title';
 import usageRouter from './routes/usage';
+import historyRouter from './routes/history';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/git', gitRouter); //     → GET '/diff' , POST '/commit'
 app.use('/api/files', filesRouter); // → GET '/tree' , GET '/read' , PUT '/write'
 app.use('/api/title', titleRouter); // → POST '/' （チャットの自動タイトル生成）
 app.use('/api/usage', usageRouter); // → GET '/' （ローカル使用量の集計）
+app.use('/api/history', historyRouter); // → GET '/sessions' , GET '/:id' （既存履歴の閲覧インポート）
 
 // 未処理ルートの 404 JSON ハンドラ
 app.use((_req: Request, res: Response) => {

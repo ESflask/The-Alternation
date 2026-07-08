@@ -69,6 +69,31 @@ struct UsageResponse: Codable, Equatable {
     }
 }
 
+/// GET /api/history/sessions のレスポンス（既存 Claude Code 履歴の一覧）
+struct HistorySessionsResponse: Codable, Equatable {
+    let scope: String
+    let sessions: [HistorySessionDTO]
+}
+struct HistorySessionDTO: Codable, Equatable, Identifiable {
+    let id: String
+    let title: String
+    let messageCount: Int
+    let startedAt: String
+    let lastAt: String
+}
+
+/// GET /api/history/:id のレスポンス（1セッションの本文）
+struct HistoryMessagesResponse: Codable, Equatable {
+    let id: String
+    let count: Int
+    let messages: [HistoryMessageDTO]
+}
+struct HistoryMessageDTO: Codable, Equatable {
+    let role: String        // "user" | "assistant"
+    let text: String
+    let timestamp: String?
+}
+
 /// チャットタイムラインの1メッセージ
 struct ChatMessage: Identifiable, Equatable, Codable {
     enum Role: String, Codable { case user, assistant }

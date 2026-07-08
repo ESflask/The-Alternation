@@ -47,6 +47,7 @@ iPhone (SwiftUI) ──HTTP/JSON──▶ vibe-connect-server (Express) ──sp
 - `GET /api/files/tree|read` / `PUT /api/files/write`
 - `POST /api/title` … チャットの自動命名（`claude -p --model haiku`）
 - `GET /api/usage?scope=all|sandbox` … `~/.claude/projects/**/*.jsonl` から使用量を集計（実測トークン＋**推定**コスト。公式請求とは別物）
+- `GET /api/history/sessions` / `GET /api/history/:id` … 既存の Claude Code 履歴の閲覧インポート
 
 ---
 
