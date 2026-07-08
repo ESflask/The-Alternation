@@ -1,0 +1,20 @@
+{
+  "fill" : {
+    "automatic-gradient" : "extended-srgb:0.15000,0.10000,0.20000,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "icon-1024.png",
+          "name" : "Icon"
+        }
+      ]
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "iOS"
+    ]
+  }
+}
