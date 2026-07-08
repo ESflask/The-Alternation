@@ -1,4 +1,4 @@
-# The Alternation<img width="1024" height="1024" alt="icon" src="https://github.com/user-attachments/assets/444ce404-4bf8-4631-96cc-57c5af460b4a" />
+# The Alternation<img width="171" height="171" alt="icon" src="https://github.com/user-attachments/assets/444ce404-4bf8-4631-96cc-57c5af460b4a" />
 
 
 自作の iOS アプリから、Mac OS上で動く **Claude Code CLI** を遠隔操作する機能を持つiOSアプリケーションです。
